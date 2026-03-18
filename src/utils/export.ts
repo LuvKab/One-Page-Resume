@@ -105,8 +105,8 @@ export const exportToPdf = async ({
     
     if (scaleMatch) {
       const scale = Number(scaleMatch[1]);
-      if (Number.isFinite(scale) && scale > 0 && scale < 1) {
-        // 服务端导出前将 transform 缩放转为 zoom，避免分页计算偏差
+      if (Number.isFinite(scale) && scale > 0 && Math.abs(scale - 1) > 0.001) {
+        // 服务端导出前将 transform 缩放转为 zoom，避免分页计算偏差（含放大/缩小）
         clonedElement.style.removeProperty("transform");
         clonedElement.style.removeProperty("transform-origin");
         clonedElement.style.setProperty("width", "100%", "important");

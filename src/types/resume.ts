@@ -177,6 +177,7 @@ export const THEME_COLORS = [
 export interface MenuSection {
   id: string;
   title: string;
+  /** Standard icon key (Lucide name), kept as string for compatibility. */
   icon: string;
   enabled: boolean;
   order: number;

@@ -31,8 +31,8 @@ export const exportResumeToBrowserPrint = async (
     const match = transformValue.match(/scale\(([\d.]+)\)/);
     if (match) {
       const scale = Number(match[1]);
-      if (Number.isFinite(scale) && scale > 0 && scale < 1) {
-        // 打印时使用 zoom 参与分页布局计算，比 transform 更接近最终分页效果
+      if (Number.isFinite(scale) && scale > 0 && Math.abs(scale - 1) > 0.001) {
+        // 打印时使用 zoom 参与分页布局计算，比 transform 更接近最终分页效果（含放大/缩小）
         clonedContent.style.removeProperty("transform");
         clonedContent.style.removeProperty("transform-origin");
         clonedContent.style.setProperty("width", "100%");

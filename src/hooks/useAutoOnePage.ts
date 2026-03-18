@@ -37,12 +37,21 @@ export function useAutoOnePage({
     // 实际内容高度（去掉 #resume-preview 的上下 padding）
     const actualContentHeight = contentHeight - 2 * pagePadding;
 
-    if (actualContentHeight <= availableHeight) {
-      // 内容未超出一页，不需要缩放
+    if (actualContentHeight <= 0) {
       return { scaleFactor: 1, isScaled: false, cannotFit: false };
     }
 
-    const idealScale = Math.min(1, availableHeight / actualContentHeight);
+    // 统一按可用高度与实际内容高度计算，支持内容不足时放大到一页
+    const idealScale = availableHeight / actualContentHeight;
+
+    if (idealScale >= 1) {
+      // 内容不足一页时放大；恰好一页时保持原样
+      return {
+        scaleFactor: idealScale,
+        isScaled: Math.abs(idealScale - 1) > 0.001,
+        cannotFit: false,
+      };
+    }
 
     if (idealScale >= MIN_SCALE) {
       // 在合理范围内，直接缩放

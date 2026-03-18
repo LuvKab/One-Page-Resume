@@ -11,6 +11,7 @@ import CustomPanel from "./custom/CustomPanel";
 import SkillPanel from "./skills/SkillPanel";
 import SelfEvaluationPanel from "./self-evaluation/SelfEvaluationPanel";
 import CertificatesPanel from "./certificates/CertificatesPanel";
+import { MenuSectionIcon } from "@/components/shared/icons/MenuSectionIcon";
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +23,7 @@ export function EditPanel() {
   const { activeResume, updateMenuSections } = useResumeStore();
   if (!activeResume) return;
   const { activeSection = "", menuSections = [] } = activeResume || {};
+  const activeSectionMeta = menuSections?.find((s) => s.id === activeSection);
 
   const renderFields = () => {
     switch (activeSection) {
@@ -64,15 +66,17 @@ export function EditPanel() {
           )}
         >
           <div className="flex items-center gap-2">
-            <span className="text-lg">
-              {menuSections?.find((s) => s.id === activeSection)?.icon}
-            </span>
+            <MenuSectionIcon
+              icon={activeSectionMeta?.icon}
+              sectionId={activeSectionMeta?.id}
+              className="w-[18px] h-[18px] text-muted-foreground"
+            />
 
             {/* 如果是基本信息的展示话展示div */}
             {activeSection === "basic" ? (
               <div>
                 <span className="text-lg font-semibold text-primary">
-                  {menuSections?.find((s) => s.id === activeSection)?.title}
+                  {activeSectionMeta?.title}
                 </span>
               </div>
             ) : (
@@ -82,9 +86,7 @@ export function EditPanel() {
                     "flex-1 text-lg  font-medium  text-primary border-black  bg-transparent outline-none   pb-1 text-primary"
                   )}
                   type="text"
-                  value={
-                    menuSections?.find((s) => s.id === activeSection)?.title
-                  }
+                  value={activeSectionMeta?.title || ""}
                   onChange={(e) => {
                     const newMenuSections = menuSections.map((s) => {
                       if (s.id === activeSection) {

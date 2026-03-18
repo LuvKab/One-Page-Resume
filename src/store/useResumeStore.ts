@@ -20,6 +20,7 @@ import {
   blankResumeStateEn,
 } from "@/config/initialResumeData";
 import { generateUUID } from "@/utils/uuid";
+import { normalizeMenuSections } from "@/utils/menuSectionIcons";
 interface ResumeStore {
   resumes: Record<string, ResumeData>;
   activeResumeId: string | null;
@@ -85,6 +86,14 @@ const migrateDefaultAvatar = (resume: ResumeData): ResumeData => {
       ...resume.basic,
       photo: CURRENT_DEFAULT_AVATAR,
     },
+  };
+};
+
+const migrateResumeData = (resume: ResumeData): ResumeData => {
+  const avatarMigratedResume = migrateDefaultAvatar(resume);
+  return {
+    ...avatarMigratedResume,
+    menuSections: normalizeMenuSections(avatarMigratedResume.menuSections),
   };
 };
 
@@ -174,16 +183,18 @@ export const useResumeStore = create(
           )}`,
         };
 
+        const migratedResume = migrateResumeData(newResume);
+
         set((state) => ({
           resumes: {
             ...state.resumes,
-            [id]: newResume,
+            [id]: migratedResume,
           },
           activeResumeId: id,
-          activeResume: newResume,
+          activeResume: migratedResume,
         }));
 
-        syncResumeToFile(newResume);
+        syncResumeToFile(migratedResume);
 
         return id;
       },
@@ -193,9 +204,16 @@ export const useResumeStore = create(
           const resume = state.resumes[resumeId];
           if (!resume) return state;
 
+          const normalizedMenuSections = data.menuSections
+            ? normalizeMenuSections(data.menuSections)
+            : undefined;
+
           const updatedResume = {
             ...resume,
             ...data,
+            ...(normalizedMenuSections
+              ? { menuSections: normalizedMenuSections }
+              : {}),
           };
 
           syncResumeToFile(updatedResume, resume);
@@ -215,13 +233,16 @@ export const useResumeStore = create(
 
       // 从文件更新，直接更新resumes
       updateResumeFromFile: (resume) => {
+        const migratedResume = migrateResumeData(resume);
         set((state) => ({
           resumes: {
             ...state.resumes,
-            [resume.id]: resume,
+            [migratedResume.id]: migratedResume,
           },
           activeResume:
-            state.activeResumeId === resume.id ? resume : state.activeResume,
+            state.activeResumeId === migratedResume.id
+              ? migratedResume
+              : state.activeResume,
         }));
       },
 
@@ -274,7 +295,7 @@ export const useResumeStore = create(
                 ?.split("=")[1] || "zh"
             : "zh";
 
-        const duplicatedResume = {
+        const duplicatedResume = migrateResumeData({
           ...originalResume,
           id: newId,
           title: `${originalResume.title} (${
@@ -282,7 +303,7 @@ export const useResumeStore = create(
           })`,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-        };
+        });
 
         set((state) => ({
           resumes: {
@@ -493,7 +514,9 @@ export const useResumeStore = create(
       updateMenuSections: (sections) => {
         const { activeResumeId } = get();
         if (activeResumeId) {
-          get().updateResume(activeResumeId, { menuSections: sections });
+          get().updateResume(activeResumeId, {
+            menuSections: normalizeMenuSections(sections),
+          });
         }
       },
 
@@ -692,17 +715,18 @@ export const useResumeStore = create(
         });
       },
       addResume: (resume: ResumeData) => {
+        const migratedResume = migrateResumeData(resume);
         set((state) => ({
           resumes: {
             ...state.resumes,
-            [resume.id]: resume,
+            [migratedResume.id]: migratedResume,
           },
-          activeResumeId: resume.id,
-          activeResume: resume,
+          activeResumeId: migratedResume.id,
+          activeResume: migratedResume,
         }));
 
-        syncResumeToFile(resume);
-        return resume.id;
+        syncResumeToFile(migratedResume);
+        return migratedResume.id;
       },
     }),
     {
@@ -717,7 +741,7 @@ export const useResumeStore = create(
         const resumes = Object.fromEntries(
           Object.entries(sourceResumes).map(([resumeId, resume]) => [
             resumeId,
-            migrateDefaultAvatar(resume),
+            migrateResumeData(resume),
           ])
         );
         const activeResumeId =

@@ -199,11 +199,18 @@
           "apiKey": "DeepSeek API Key"
         },
         "openai": {
-          "title": "OpenAI",
-          "description": "Obtain the API key at OpenAI or an open platform compatible with the OpenAI format",
-          "apiKey": "OpenAI API Key",
+          "title": "OpenAI Compatible",
+          "description": "Supports official APIs, relay gateways, and local runtimes (Ollama / LM Studio)",
+          "apiKey": "API Key",
           "modelId": "Model ID",
-          "apiEndpoint": "API Endpoint, example: https://openai.example.org/v1"
+          "apiEndpoint": "API Endpoint, example: https://openai.example.org/v1",
+          "providerPreset": "Provider Preset",
+          "applyRecommended": "Apply Recommended Values",
+          "recommendedEndpoint": "Recommended Endpoint",
+          "recommendedModel": "Recommended Model",
+          "notProvided": "Not provided",
+          "apiKeyOptional": "API Key Optional",
+          "apiKeyOptionalDescription": "Enable this for local or unauthenticated gateways; API key can be empty when enabled"
         },
         "gemini": {
           "title": "Gemini",

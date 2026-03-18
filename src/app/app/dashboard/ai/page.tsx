@@ -1,13 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ExternalLink, Sparkles } from "lucide-react";
 import { useTranslations } from "@/i18n/compat/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import DeepSeekLogo from "@/components/ai/icon/IconDeepseek";
 import IconDoubao from "@/components/ai/icon/IconDoubao";
+import IconOpenAi from "@/components/ai/icon/IconOpenAi";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
 import { cn } from "@/lib/utils";
-import IconOpenAi from "@/components/ai/icon/IconOpenAi";
+import {
+  AI_MODEL_CONFIGS,
+  AIModelType,
+  OPENAI_COMPATIBLE_PRESETS,
+  OpenAICompatiblePresetId,
+  getOpenAICompatiblePresetById,
+} from "@/config/ai";
 
 const AISettingsPage = () => {
   const {
@@ -17,6 +33,8 @@ const AISettingsPage = () => {
     openaiApiKey,
     openaiModelId,
     openaiApiEndpoint,
+    openaiProviderPresetId,
+    openaiApiKeyOptional,
     geminiApiKey,
     geminiModelId,
     setDoubaoApiKey,
@@ -25,98 +43,112 @@ const AISettingsPage = () => {
     setOpenaiApiKey,
     setOpenaiModelId,
     setOpenaiApiEndpoint,
+    setOpenaiProviderPresetId,
+    setOpenaiApiKeyOptional,
     setGeminiApiKey,
     setGeminiModelId,
     selectedModel,
     setSelectedModel,
   } = useAIConfigStore();
-  const [currentModel, setCurrentModel] = useState(selectedModel);
 
+  const [currentModel, setCurrentModel] = useState(selectedModel);
   const t = useTranslations();
+  const selectedPreset = useMemo(
+    () => getOpenAICompatiblePresetById(openaiProviderPresetId),
+    [openaiProviderPresetId]
+  );
 
   useEffect(() => {
     setCurrentModel(selectedModel);
   }, [selectedModel]);
 
-  const handleApiKeyChange = async (
+  const handleApiKeyChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "doubao" | "deepseek" | "openai" | "gemini"
+    type: AIModelType
   ) => {
     const newApiKey = e.target.value;
     if (type === "doubao") {
       setDoubaoApiKey(newApiKey);
-    } else if (type === "deepseek") {
-      setDeepseekApiKey(newApiKey);
-    } else if (type === "gemini") {
-      setGeminiApiKey(newApiKey);
-    } else {
-      setOpenaiApiKey(newApiKey);
+      return;
     }
+    if (type === "deepseek") {
+      setDeepseekApiKey(newApiKey);
+      return;
+    }
+    if (type === "gemini") {
+      setGeminiApiKey(newApiKey);
+      return;
+    }
+    setOpenaiApiKey(newApiKey);
   };
 
-  const handleModelIdChange = async (
+  const handleModelIdChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "doubao" | "deepseek" | "openai" | "gemini"
+    type: AIModelType
   ) => {
     const newModelId = e.target.value;
     if (type === "doubao") {
       setDoubaoModelId(newModelId);
-    } else if (type === "openai") {
+      return;
+    }
+    if (type === "openai") {
       setOpenaiModelId(newModelId);
-    } else if (type === "gemini") {
+      return;
+    }
+    if (type === "gemini") {
       setGeminiModelId(newModelId);
     }
   };
 
-  const handleApiEndpointChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: "openai"
-  ) => {
-    const newApiEndpoint = e.target.value;
-    if (type === "openai") {
-      setOpenaiApiEndpoint(newApiEndpoint);
-    }
+  const applyOpenAIPresetRecommendation = () => {
+    setOpenaiApiEndpoint(selectedPreset.recommendedEndpoint || "");
+    setOpenaiModelId(selectedPreset.recommendedModel || "");
+    setOpenaiApiKeyOptional(!selectedPreset.requiresApiKey);
   };
+
+  const openaiConfigured = AI_MODEL_CONFIGS.openai.validate({
+    openaiApiKey,
+    openaiModelId,
+    openaiApiEndpoint,
+    openaiApiKeyOptional,
+    openaiProviderPresetId,
+  });
 
   const models = [
     {
-      id: "deepseek",
+      id: "deepseek" as AIModelType,
       name: t("dashboard.settings.ai.deepseek.title"),
       description: t("dashboard.settings.ai.deepseek.description"),
       icon: DeepSeekLogo,
       link: "https://platform.deepseek.com",
       color: "text-q_acid",
-      bgColor: "bg-q_acid/10 dark:bg-q_acid/20",
       isConfigured: !!deepseekApiKey,
     },
     {
-      id: "doubao",
+      id: "doubao" as AIModelType,
       name: t("dashboard.settings.ai.doubao.title"),
       description: t("dashboard.settings.ai.doubao.description"),
       icon: IconDoubao,
       link: "https://console.volcengine.com/ark",
       color: "text-q_black",
-      bgColor: "bg-q_white dark:bg-q_white/10",
       isConfigured: !!(doubaoApiKey && doubaoModelId),
     },
     {
-      id: "openai",
+      id: "openai" as AIModelType,
       name: t("dashboard.settings.ai.openai.title"),
       description: t("dashboard.settings.ai.openai.description"),
       icon: IconOpenAi,
-      link: "https://platform.openai.com/api-keys",
+      link: selectedPreset.docsUrl,
       color: "text-q_black",
-      bgColor: "bg-q_white dark:bg-q_white/10",
-      isConfigured: !!(openaiApiKey && openaiModelId && openaiApiEndpoint),
+      isConfigured: openaiConfigured,
     },
     {
-      id: "gemini",
+      id: "gemini" as AIModelType,
       name: t("dashboard.settings.ai.gemini.title"),
       description: t("dashboard.settings.ai.gemini.description"),
       icon: Sparkles,
       link: "https://aistudio.google.com/app/apikey",
       color: "text-q_acid",
-      bgColor: "bg-q_acid/10 dark:bg-q_acid/20",
       isConfigured: !!(geminiApiKey && geminiModelId),
     },
   ];
@@ -130,12 +162,11 @@ const AISettingsPage = () => {
               const Icon = model.icon;
               const isChecked = selectedModel === model.id;
               const isViewing = currentModel === model.id;
+
               return (
                 <div
                   key={model.id}
-                  onClick={() => {
-                    setCurrentModel(model.id as typeof currentModel);
-                  }}
+                  onClick={() => setCurrentModel(model.id)}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left border",
                     "transition-all duration-200 cursor-pointer",
@@ -150,9 +181,9 @@ const AISettingsPage = () => {
                       "shrink-0",
                       isViewing ? "text-q_black" : "text-muted-foreground"
                     )}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </div>
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
                   <div className="flex-1 min-w-0 flex flex-col items-start">
                     <span
                       className={cn(
@@ -172,12 +203,8 @@ const AISettingsPage = () => {
                     type="button"
                     aria-label={`Select ${model.name}`}
                     onClick={() => {
-                      setSelectedModel(
-                        model.id as "doubao" | "deepseek" | "openai" | "gemini"
-                      );
-                      setCurrentModel(
-                        model.id as "doubao" | "deepseek" | "openai" | "gemini"
-                      );
+                      setSelectedModel(model.id);
+                      setCurrentModel(model.id);
                     }}
                     className={cn(
                       "h-6 w-6 rounded-md flex items-center justify-center border transition-all",
@@ -213,37 +240,119 @@ const AISettingsPage = () => {
                   </div>
 
                   <div className="space-y-6">
+                    {model.id === "openai" && (
+                      <div className="space-y-4 rounded-xl border border-border/80 bg-background/60 p-4">
+                        <div className="space-y-2">
+                          <Label className="text-base font-medium">
+                            {t("dashboard.settings.ai.openai.providerPreset")}
+                          </Label>
+                          <Select
+                            value={openaiProviderPresetId}
+                            onValueChange={(value) => {
+                              const presetId = value as OpenAICompatiblePresetId;
+                              const preset = getOpenAICompatiblePresetById(presetId);
+                              setOpenaiProviderPresetId(presetId);
+                              setOpenaiApiKeyOptional(!preset.requiresApiKey);
+                            }}
+                          >
+                            <SelectTrigger className="h-11">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {OPENAI_COMPATIBLE_PRESETS.map((preset) => (
+                                <SelectItem key={preset.id} value={preset.id}>
+                                  {preset.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground">
+                            {selectedPreset.description}
+                          </p>
+                        </div>
+
+                        <div className="space-y-1 text-xs text-muted-foreground">
+                          <p>
+                            {t("dashboard.settings.ai.openai.recommendedEndpoint")}
+                            ：{" "}
+                            {selectedPreset.recommendedEndpoint ||
+                              t("dashboard.settings.ai.openai.notProvided")}
+                          </p>
+                          <p>
+                            {t("dashboard.settings.ai.openai.recommendedModel")}：
+                            {" "}
+                            {selectedPreset.recommendedModel ||
+                              t("dashboard.settings.ai.openai.notProvided")}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-9"
+                            onClick={applyOpenAIPresetRecommendation}
+                          >
+                            {t("dashboard.settings.ai.openai.applyRecommended")}
+                          </Button>
+                          <a
+                            href={selectedPreset.docsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-muted-foreground hover:text-q_acid flex items-center gap-1"
+                          >
+                            {t("dashboard.settings.ai.getApiKey")}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 px-3 py-2.5">
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium">
+                              {t("dashboard.settings.ai.openai.apiKeyOptional")}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {t(
+                                "dashboard.settings.ai.openai.apiKeyOptionalDescription"
+                              )}
+                            </p>
+                          </div>
+                          <Switch
+                            checked={openaiApiKeyOptional}
+                            onCheckedChange={setOpenaiApiKeyOptional}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <Label className="text-base font-medium">
                           {t(`dashboard.settings.ai.${model.id}.apiKey`)}
                         </Label>
-                        <a
-                          href={model.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-muted-foreground hover:text-q_acid flex items-center gap-1"
-                        >
-                          {t("dashboard.settings.ai.getApiKey")}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                        {model.id !== "openai" && (
+                          <a
+                            href={model.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-muted-foreground hover:text-q_acid flex items-center gap-1"
+                          >
+                            {t("dashboard.settings.ai.getApiKey")}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
                       </div>
                       <Input
                         value={
                           model.id === "doubao"
                             ? doubaoApiKey
                             : model.id === "openai"
-                            ? openaiApiKey
-                            : model.id === "gemini"
-                            ? geminiApiKey
-                            : deepseekApiKey
+                              ? openaiApiKey
+                              : model.id === "gemini"
+                                ? geminiApiKey
+                                : deepseekApiKey
                         }
-                        onChange={(e) =>
-                          handleApiKeyChange(
-                            e,
-                            model.id as "doubao" | "deepseek" | "openai" | "gemini"
-                          )
-                        }
+                        onChange={(e) => handleApiKeyChange(e, model.id)}
                         type="password"
                         placeholder={t(
                           `dashboard.settings.ai.${model.id}.apiKey`
@@ -265,9 +374,7 @@ const AISettingsPage = () => {
                         <Input
                           value={doubaoModelId}
                           onChange={(e) => handleModelIdChange(e, "doubao")}
-                          placeholder={t(
-                            "dashboard.settings.ai.doubao.modelId"
-                          )}
+                          placeholder={t("dashboard.settings.ai.doubao.modelId")}
                           className={cn(
                             "h-11",
                             "bg-background",
@@ -279,24 +386,45 @@ const AISettingsPage = () => {
                     )}
 
                     {model.id === "openai" && (
-                      <div className="space-y-4">
-                        <Label className="text-base font-medium">
-                          {t("dashboard.settings.ai.openai.modelId")}
-                        </Label>
-                        <Input
-                          value={openaiModelId}
-                          onChange={(e) => handleModelIdChange(e, "openai")}
-                          placeholder={t(
-                            "dashboard.settings.ai.openai.modelId"
-                          )}
-                          className={cn(
-                            "h-11",
-                            "bg-background",
-                            "border-border",
-                            "focus:ring-2 focus:ring-q_acid/20"
-                          )}
-                        />
-                      </div>
+                      <>
+                        <div className="space-y-4">
+                          <Label className="text-base font-medium">
+                            {t("dashboard.settings.ai.openai.modelId")}
+                          </Label>
+                          <Input
+                            value={openaiModelId}
+                            onChange={(e) => handleModelIdChange(e, "openai")}
+                            placeholder={t("dashboard.settings.ai.openai.modelId")}
+                            className={cn(
+                              "h-11",
+                              "bg-background",
+                              "border-border",
+                              "focus:ring-2 focus:ring-q_acid/20"
+                            )}
+                          />
+                        </div>
+
+                        <div className="space-y-4">
+                          <Label className="text-base font-medium">
+                            {t("dashboard.settings.ai.openai.apiEndpoint")}
+                          </Label>
+                          <Input
+                            value={openaiApiEndpoint}
+                            onChange={(e) =>
+                              setOpenaiApiEndpoint(e.target.value)
+                            }
+                            placeholder={t(
+                              "dashboard.settings.ai.openai.apiEndpoint"
+                            )}
+                            className={cn(
+                              "h-11",
+                              "bg-background",
+                              "border-border",
+                              "focus:ring-2 focus:ring-q_acid/20"
+                            )}
+                          />
+                        </div>
+                      </>
                     )}
 
                     {model.id === "gemini" && (
@@ -317,27 +445,6 @@ const AISettingsPage = () => {
                         />
                       </div>
                     )}
-
-                    {model.id === "openai" && (
-                      <div className="space-y-4">
-                        <Label className="text-base font-medium">
-                          {t("dashboard.settings.ai.openai.apiEndpoint")}
-                        </Label>
-                        <Input
-                          value={openaiApiEndpoint}
-                          onChange={(e) => handleApiEndpointChange(e, "openai")}
-                          placeholder={t(
-                            "dashboard.settings.ai.openai.apiEndpoint"
-                          )}
-                          className={cn(
-                            "h-11",
-                            "bg-background",
-                            "border-border",
-                            "focus:ring-2 focus:ring-q_acid/20"
-                          )}
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
               )
@@ -347,6 +454,7 @@ const AISettingsPage = () => {
     </div>
   );
 };
+
 export const runtime = "edge";
 
 export default AISettingsPage;

@@ -5,10 +5,14 @@ export interface ResumeModule {
 }
 
 export const STANDARD_MODULES: Record<string, ResumeModule> = {
-  skills: { id: "skills", titleKey: "skills", icon: "⚡" },
-  experience: { id: "experience", titleKey: "experience", icon: "💼" },
-  projects: { id: "projects", titleKey: "projects", icon: "🚀" },
-  education: { id: "education", titleKey: "education", icon: "🎓" },
-  selfEvaluation: { id: "selfEvaluation", titleKey: "selfEvaluation", icon: "💬" },
-  certificates: { id: "certificates", titleKey: "certificates", icon: "🏆" },
+  skills: { id: "skills", titleKey: "skills", icon: "Zap" },
+  experience: { id: "experience", titleKey: "experience", icon: "Briefcase" },
+  projects: { id: "projects", titleKey: "projects", icon: "Rocket" },
+  education: { id: "education", titleKey: "education", icon: "GraduationCap" },
+  selfEvaluation: {
+    id: "selfEvaluation",
+    titleKey: "selfEvaluation",
+    icon: "MessageSquare",
+  },
+  certificates: { id: "certificates", titleKey: "certificates", icon: "Award" },
 };

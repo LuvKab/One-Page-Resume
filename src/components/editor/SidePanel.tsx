@@ -29,6 +29,11 @@ import { Plus } from "lucide-react";
 import { STANDARD_MODULES } from "@/config/modules";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { getFontOptions, normalizeFontFamily } from "@/utils/fonts";
+import { MenuSectionIcon } from "@/components/shared/icons/MenuSectionIcon";
+import {
+  CUSTOM_SECTION_ICON_KEY,
+  normalizeMenuSectionIcon,
+} from "@/utils/menuSectionIcons";
 
 const lineHeightOptions = [
   { value: "normal", label: "默认" },
@@ -144,7 +149,7 @@ export function SidePanel() {
     const newSection = {
       id: sectionId,
       title: sectionId,
-      icon: "➕",
+      icon: CUSTOM_SECTION_ICON_KEY,
       enabled: true,
       order: menuSections.length,
     };
@@ -216,7 +221,7 @@ export function SidePanel() {
                         const newSection = {
                           id: section.id,
                           title: t(`layout.standardSections.${section.titleKey}`),
-                          icon: section.icon,
+                          icon: normalizeMenuSectionIcon(section.icon, section.id),
                           enabled: true,
                           order: menuSections.length,
                         };
@@ -224,7 +229,11 @@ export function SidePanel() {
                       }}
                       className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors text-left"
                     >
-                      <span className="text-lg">{section.icon}</span>
+                      <MenuSectionIcon
+                        icon={section.icon}
+                        sectionId={section.id}
+                        className="h-4 w-4 text-muted-foreground"
+                      />
                       <span>{t(`layout.standardSections.${section.titleKey}`)}</span>
                     </button>
                   ))}
@@ -266,7 +275,11 @@ export function SidePanel() {
                   >
                     <div className="mb-2 flex items-center justify-between">
                       <div className="text-sm font-medium text-foreground flex items-center gap-1.5">
-                        <span>{section.icon}</span>
+                        <MenuSectionIcon
+                          icon={section.icon}
+                          sectionId={section.id}
+                          className="h-4 w-4 text-muted-foreground"
+                        />
                         <span>{section.title}</span>
                       </div>
                       <button

@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AI_MODEL_CONFIGS, AIModelType, SERVER_MANAGED_AI } from "@/config/ai";
+import {
+  AI_MODEL_CONFIGS,
+  AIModelType,
+  DEFAULT_OPENAI_COMPATIBLE_PRESET_ID,
+  OpenAICompatiblePresetId,
+  SERVER_MANAGED_AI,
+} from "@/config/ai";
 
 interface AIConfigState {
   selectedModel: AIModelType;
@@ -11,6 +17,8 @@ interface AIConfigState {
   openaiApiKey: string;
   openaiModelId: string;
   openaiApiEndpoint: string;
+  openaiProviderPresetId: OpenAICompatiblePresetId;
+  openaiApiKeyOptional: boolean;
   geminiApiKey: string;
   geminiModelId: string;
   setSelectedModel: (model: AIModelType) => void;
@@ -21,6 +29,8 @@ interface AIConfigState {
   setOpenaiApiKey: (apiKey: string) => void;
   setOpenaiModelId: (modelId: string) => void;
   setOpenaiApiEndpoint: (endpoint: string) => void;
+  setOpenaiProviderPresetId: (presetId: OpenAICompatiblePresetId) => void;
+  setOpenaiApiKeyOptional: (optional: boolean) => void;
   setGeminiApiKey: (apiKey: string) => void;
   setGeminiModelId: (modelId: string) => void;
   isConfigured: () => boolean;
@@ -37,8 +47,10 @@ export const useAIConfigStore = create<AIConfigState>()(
       openaiApiKey: "",
       openaiModelId: "",
       openaiApiEndpoint: "",
+      openaiProviderPresetId: DEFAULT_OPENAI_COMPATIBLE_PRESET_ID,
+      openaiApiKeyOptional: false,
       geminiApiKey: "",
-      geminiModelId: "gemini-flash-latest",
+      geminiModelId: "",
       setSelectedModel: (model: AIModelType) => set({ selectedModel: model }),
       setDoubaoApiKey: (apiKey: string) => set({ doubaoApiKey: apiKey }),
       setDoubaoModelId: (modelId: string) => set({ doubaoModelId: modelId }),
@@ -47,6 +59,10 @@ export const useAIConfigStore = create<AIConfigState>()(
       setOpenaiApiKey: (apiKey: string) => set({ openaiApiKey: apiKey }),
       setOpenaiModelId: (modelId: string) => set({ openaiModelId: modelId }),
       setOpenaiApiEndpoint: (endpoint: string) => set({ openaiApiEndpoint: endpoint }),
+      setOpenaiProviderPresetId: (presetId: OpenAICompatiblePresetId) =>
+        set({ openaiProviderPresetId: presetId }),
+      setOpenaiApiKeyOptional: (optional: boolean) =>
+        set({ openaiApiKeyOptional: optional }),
       setGeminiApiKey: (apiKey: string) => set({ geminiApiKey: apiKey }),
       setGeminiModelId: (modelId: string) => set({ geminiModelId: modelId }),
       isConfigured: () => {

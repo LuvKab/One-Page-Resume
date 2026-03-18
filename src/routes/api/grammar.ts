@@ -8,12 +8,20 @@ export const Route = createFileRoute("/api/grammar")({
       POST: async ({ request }) => {
         try {
           const body = await request.json();
-          const { apiKey, model, content, modelType, apiEndpoint } = body as {
+          const {
+            apiKey,
+            model,
+            content,
+            modelType,
+            apiEndpoint,
+          } = body as {
             apiKey: string;
             model: string;
             content: string;
             modelType: AIModelType;
             apiEndpoint?: string;
+            providerPresetId?: string;
+            apiKeyOptional?: boolean;
           };
 
           const modelConfig = AI_MODEL_CONFIGS[modelType as AIModelType];
@@ -79,7 +87,7 @@ export const Route = createFileRoute("/api/grammar")({
 
           const response = await fetch(modelConfig.url(apiEndpoint), {
             method: "POST",
-            headers: modelConfig.headers(apiKey),
+            headers: modelConfig.headers(apiKey || ""),
             body: JSON.stringify({
               model: modelConfig.requiresModelId ? model : modelConfig.defaultModel,
               response_format: {
@@ -97,6 +105,13 @@ export const Route = createFileRoute("/api/grammar")({
               ]
             })
           });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(
+              `Grammar request failed (${response.status}): ${errorText || "Unknown error"}`
+            );
+          }
 
           const data = await response.json();
           return Response.json(data);

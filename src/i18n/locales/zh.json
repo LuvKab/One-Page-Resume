@@ -200,11 +200,18 @@
           "apiKey": "API Key"
         },
         "openai": {
-          "title": "OpenAI",
-          "description": "在 OpenAI 或兼容 OpenAI 格式的开放平台获取 API 密钥",
+          "title": "OpenAI 兼容",
+          "description": "支持官方平台、中转网关与本地模型（Ollama / LM Studio）",
           "apiKey": "API Key",
           "modelId": "模型 ID",
-          "apiEndpoint": "API 端点，如：https://openai.example.org/v1"
+          "apiEndpoint": "API 端点，如：https://openai.example.org/v1",
+          "providerPreset": "服务商预设",
+          "applyRecommended": "应用推荐值",
+          "recommendedEndpoint": "推荐 Endpoint",
+          "recommendedModel": "推荐模型",
+          "notProvided": "未提供",
+          "apiKeyOptional": "API Key 可选",
+          "apiKeyOptionalDescription": "本地服务或无需鉴权的网关可开启；开启后允许 Key 为空"
         },
         "gemini": {
           "title": "Gemini",

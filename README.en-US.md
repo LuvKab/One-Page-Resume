@@ -1,39 +1,44 @@
-﻿# One Page Resume
+# One Page Resume
 
-One Page Resume is an AI-powered resume editor focused on layout control and delivery quality. It provides local-first data storage, real-time preview, modular editing, and PDF export.
+An AI-powered resume editor focused on layout control and delivery quality: local-first storage, real-time preview, modular editing, and high-quality PDF export.
 
-Repository: [https://github.com/LuvKab/resume-master](https://github.com/LuvKab/resume-master)
+- Repository: https://github.com/LuvKab/resume-master
+- Stack: TanStack Start + React 18 + TypeScript + Tailwind + TipTap
 
-## Key Features
+## Highlights
 
-- Per-module height control (including avatar block)
-- Drag-and-drop ordering with grid-like layout control
+- Per-section height control (including avatar area)
+- Drag-and-drop section ordering with visual layout controls
 - AI polish and grammar checking
-- Local-first storage for better privacy
+- Local-first data storage (privacy-friendly)
 - One-click PDF export for job applications
+- OpenAI-compatible integrations (official / gateway / local)
 
-## Getting Started
+## Quick Start
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Default dev URL: `http://localhost:3000`
+Use the URL shown in terminal output.
 
-## Build and Run
+## Build & Run
 
 ```bash
 pnpm build
 pnpm start
 ```
 
-## Tech Stack
+## Common Scripts
 
-- TanStack Start + React 18 + TypeScript
-- Tailwind CSS + HeroUI
-- TipTap rich text editor
-- Framer Motion
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start local development |
+| `pnpm build` | Production build (client + SSR) |
+| `pnpm preview` | Preview build output |
+| `pnpm start` | Start server runtime |
+| `pnpm generate:template-snapshots` | Regenerate template snapshots |
 
 ## Project Structure
 
@@ -41,31 +46,55 @@ pnpm start
 src/
   app/                 # pages and layouts
   components/          # UI components
-  routes/              # route entry points
+  routes/              # route and API entry points
   i18n/                # locale messages
   config/              # constants and configs
+  store/               # Zustand stores
+  utils/               # utility helpers
 ```
 
-## Customization
+## AI Configuration
 
-- Brand/export settings: `src/config/constants.ts`
+### 1) Frontend manual mode (default)
+
+Configure providers in `Dashboard -> AI Configuration`.
+
+Supported providers:
+
+- Official: OpenAI, DeepSeek, Doubao, Gemini
+- OpenAI-compatible presets: Qwen, Zhipu, Kimi, OpenRouter, SiliconFlow, Together
+- Local runtimes: Ollama, LM Studio
+
+Behavior:
+
+- All API-related input fields default to empty
+- Presets only provide recommended Endpoint / Model
+- Values are filled only after clicking `Apply Recommended Values`
+- `API Key Optional` is available for local or unauthenticated gateways
+
+### 2) Server-managed mode (optional)
+
+If you do not want users to enter keys in UI:
+
+```env
+VITE_SERVER_MANAGED_AI=true
+DEFAULT_AI_MODEL=openai
+OPENAI_API_KEY=...
+OPENAI_MODEL_ID=...
+OPENAI_API_ENDPOINT=...
+```
+
+`doubao` / `deepseek` / `gemini` env variants are also supported.
+
+## Customization Points
+
+- Brand and export settings: `src/config/constants.ts`
 - SEO metadata: `src/routes/$locale.tsx`, `src/routes/__root.tsx`
-- Landing page design: `src/app/(public)/[locale]/page.tsx`
-
-## API Refactor (Server-Managed Mode)
-
-You can move AI keys to the server side so users don't have to input keys in the UI.
-
-1. Configure `.env`:
-   - `VITE_SERVER_MANAGED_AI=true`
-   - `DEFAULT_AI_MODEL=openai` (optional: `doubao` / `deepseek` / `gemini`)
-   - model-specific `*_API_KEY`, `*_MODEL_ID`, and `OPENAI_API_ENDPOINT`
-2. Client-side manual config is still supported; if request keys are missing, API routes now fall back to environment variables.
+- Landing page visuals: `src/app/(public)/[locale]/page.tsx`
 
 ## GitHub Actions Notes
 
-If the following Secrets are not configured, related publish/deploy jobs are now skipped instead of failing:
+If these secrets are not configured, related publish/deploy jobs are skipped automatically (CI remains green):
 
-- Docker publish: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
-- Cloudflare deploy: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
-
+- Docker: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
+- Cloudflare: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`

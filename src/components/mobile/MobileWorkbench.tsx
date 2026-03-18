@@ -8,6 +8,7 @@ import { EditPanel } from "@/components/editor/EditPanel";
 import { SidePanel } from "@/components/editor/SidePanel";
 import PreviewPanel from "@/components/preview";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { MenuSectionIcon } from "@/components/shared/icons/MenuSectionIcon";
 
 type TabType = "content" | "style" | "preview";
 
@@ -15,6 +16,7 @@ export function MobileWorkbench() {
   const [activeTab, setActiveTab] = useState<TabType>("content");
   const { activeResume, setActiveSection } = useResumeStore();
   const { activeSection, menuSections } = activeResume || {};
+  const basicSection = menuSections?.find((s) => s.id === "basic");
 
   // 渲染底部导航项
   const renderNavItem = (tab: TabType, icon: React.ReactNode, label: string) => (
@@ -68,8 +70,12 @@ export function MobileWorkbench() {
                           : "bg-background text-muted-foreground border-border hover:bg-muted"
                       )}
                     >
-                      <span className="mr-1.5">👤</span>
-                      基本信息
+                      <MenuSectionIcon
+                        icon={basicSection?.icon}
+                        sectionId="basic"
+                        className="mr-1.5 h-4 w-4"
+                      />
+                      {basicSection?.title || "基本信息"}
                     </button>
                     
                     {/* 其他模块 */}
@@ -86,7 +92,11 @@ export function MobileWorkbench() {
                               : "bg-background text-muted-foreground border-border hover:bg-muted"
                           )}
                         >
-                          <span className="mr-1.5">{section.icon}</span>
+                          <MenuSectionIcon
+                            icon={section.icon}
+                            sectionId={section.id}
+                            className="mr-1.5 h-4 w-4"
+                          />
                           {section.title}
                         </button>
                       ))}
