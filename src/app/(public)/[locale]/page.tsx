@@ -44,7 +44,7 @@ const featureCards = [
 ];
 
 export default function LandingPage() {
-  const dashboardPath = "/app/dashboard";
+  const dashboardPath = "/app/dashboard/resumes";
 
   useEffect(() => {
     const scope = document.querySelector(".yi-home");
@@ -171,7 +171,7 @@ export default function LandingPage() {
           </div>
 
           <a
-            href="#onboarding"
+            href={dashboardPath}
             className="hidden sm:inline-block relative px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.75rem,2vw,1rem)] font-mono font-medium text-xs uppercase track-widest text-q_bone bg-q_black clip-button overflow-hidden transition-all duration-300 hover:bg-q_acid"
           >
             立即开始
@@ -247,7 +247,7 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap items-center gap-6">
               <a
-                href="#onboarding"
+                href={dashboardPath}
                 className="relative px-[clamp(1.5rem,3vw,2rem)] py-[clamp(0.75rem,2vw,1rem)] font-mono font-medium text-sm md:text-base uppercase track-widest text-q_bone bg-q_acid clip-button overflow-hidden transition-all duration-300 hover:bg-q_black hover:-translate-y-1"
               >
                 开始制作

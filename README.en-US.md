@@ -1,80 +1,134 @@
 # One Page Resume
 
-An AI-powered resume editor focused on layout control and delivery quality: local-first storage, real-time preview, modular editing, and high-quality PDF export.
+A local-first AI resume editor focused on:
+
+1. Modular editing (drag/sort/height control)
+2. One-page layout control (preview/export consistency)
+3. AI polish + grammar check (official, gateway, and local OpenAI-compatible providers)
 
 - Repository: https://github.com/LuvKab/resume-master
 - Stack: TanStack Start + React 18 + TypeScript + Tailwind + TipTap
 
-## Highlights
+## 1. Prerequisites
 
-- Per-section height control (including avatar area)
-- Drag-and-drop section ordering with visual layout controls
-- AI polish and grammar checking
-- Local-first data storage (privacy-friendly)
-- One-click PDF export for job applications
-- OpenAI-compatible integrations (official / gateway / local)
+### 1.1 Required versions
 
-## Quick Start
+- Node.js: `>= 20`
+- pnpm: `>= 10`
+
+### 1.2 Check with commands
+
+```bash
+node -v
+pnpm -v
+```
+
+If either command fails or the version is too old, upgrade first.
+
+## 2. Run Locally (step by step)
+
+### Step 1: install dependencies
 
 ```bash
 pnpm install
+```
+
+Expected result: no `ERR!` / `ELIFECYCLE` failure in terminal.
+
+### Step 2: start dev server
+
+```bash
 pnpm dev
 ```
 
-Use the URL shown in terminal output.
+Expected result: terminal prints a local URL (for example `http://localhost:3000` or `http://localhost:5173`).
 
-## Build & Run
+### Step 3: open browser
+
+Open the printed URL, then click **Start** on the landing page.  
+It should go directly to:
+
+- `/app/dashboard/resumes`
+
+## 3. First-time Flow (short path)
+
+1. In **My Resumes**, click **New Resume**.
+2. Choose blank/template.
+3. It opens editor directly (`/app/workbench/{id}`).
+4. Edit content and export PDF.
+
+## 4. AI Configuration (manual mode by default)
+
+Path: `Dashboard -> AI Providers`
+
+### 4.1 What you will see
+
+1. Left panel always shows all providers (DeepSeek / Doubao / OpenAI Compatible / Gemini).
+2. Clicking a provider switches the right-side form to that provider.
+3. “Current viewing provider” and “default selected model” are separate states.
+
+### 4.2 Important rules
+
+1. All API input fields default to empty.
+2. OpenAI-compatible provider presets only show recommendations.
+3. Recommended endpoint/model are filled only after clicking **Apply Recommended Values**.
+4. For local runtimes (Ollama / LM Studio), you can enable **API Key Optional**.
+
+## 5. Production Build & Run
 
 ```bash
 pnpm build
 pnpm start
 ```
 
-## Common Scripts
+Expected result: app starts and is reachable.
 
-| Command | Description |
+## 6. Common Commands
+
+| Command | Purpose |
 | --- | --- |
-| `pnpm dev` | Start local development |
-| `pnpm build` | Production build (client + SSR) |
+| `pnpm dev` | Local development |
+| `pnpm build` | Production build |
+| `pnpm start` | Start production server |
 | `pnpm preview` | Preview build output |
-| `pnpm start` | Start server runtime |
 | `pnpm generate:template-snapshots` | Regenerate template snapshots |
 
-## Project Structure
+## 7. Troubleshooting
 
-```text
-src/
-  app/                 # pages and layouts
-  components/          # UI components
-  routes/              # route and API entry points
-  i18n/                # locale messages
-  config/              # constants and configs
-  store/               # Zustand stores
-  utils/               # utility helpers
+### 7.1 Port already in use
+
+Symptom: `pnpm dev` reports port conflict.  
+Fix: stop the process using that port, or use the new port printed by terminal.
+
+### 7.2 Dependency install fails
+
+Symptom: `pnpm install` fails because of cache/network/lock issues.  
+Fix:
+
+```bash
+pnpm store prune
+pnpm install
 ```
 
-## AI Configuration
+### 7.3 AI request fails (401/403)
 
-### 1) Frontend manual mode (default)
+Check in order:
 
-Configure providers in `Dashboard -> AI Configuration`.
+1. API key is correct.
+2. Endpoint is reachable.
+3. Model ID exists on the provider.
 
-Supported providers:
+### 7.4 Local runtime not responding (Ollama/LM Studio)
 
-- Official: OpenAI, DeepSeek, Doubao, Gemini
-- OpenAI-compatible presets: Qwen, Zhipu, Kimi, OpenRouter, SiliconFlow, Together
-- Local runtimes: Ollama, LM Studio
+Check in order:
 
-Behavior:
+1. Local service is running.
+2. Endpoint is correct (for example `http://127.0.0.1:11434/v1`).
+3. `API Key Optional` is enabled when needed.
 
-- All API-related input fields default to empty
-- Presets only provide recommended Endpoint / Model
-- Values are filled only after clicking `Apply Recommended Values`
-- `API Key Optional` is available for local or unauthenticated gateways
+## 8. Optional: Server-managed AI
 
-### 2) Server-managed mode (optional)
-
-If you do not want users to enter keys in UI:
+If you do not want users to input keys in UI:
 
 ```env
 VITE_SERVER_MANAGED_AI=true
@@ -86,15 +140,14 @@ OPENAI_API_ENDPOINT=...
 
 `doubao` / `deepseek` / `gemini` env variants are also supported.
 
-## Customization Points
+## 9. Project Structure
 
-- Brand and export settings: `src/config/constants.ts`
-- SEO metadata: `src/routes/$locale.tsx`, `src/routes/__root.tsx`
-- Landing page visuals: `src/app/(public)/[locale]/page.tsx`
-
-## GitHub Actions Notes
-
-If these secrets are not configured, related publish/deploy jobs are skipped automatically (CI remains green):
-
-- Docker: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
-- Cloudflare: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
+```text
+src/
+  app/         pages and layouts
+  components/  components
+  routes/      routes and APIs
+  store/       Zustand stores
+  config/      constants and config
+  i18n/        locale messages
+```

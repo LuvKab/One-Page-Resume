@@ -157,7 +157,7 @@ const AISettingsPage = () => {
     <div className="mx-auto py-4 px-4">
       <div className="flex gap-8">
         <div className="w-64 space-y-6">
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1.5">
             {models.map((model) => {
               const Icon = model.icon;
               const isChecked = selectedModel === model.id;
@@ -168,7 +168,7 @@ const AISettingsPage = () => {
                   key={model.id}
                   onClick={() => setCurrentModel(model.id)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left border",
+                    "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left border",
                     "transition-all duration-200 cursor-pointer",
                     "hover:bg-q_acid/10 hover:border-q_acid/30",
                     isViewing
@@ -178,11 +178,11 @@ const AISettingsPage = () => {
                 >
                   <div
                     className={cn(
-                      "shrink-0",
+                      "shrink-0 h-6 w-6 flex items-center justify-center",
                       isViewing ? "text-q_black" : "text-muted-foreground"
                     )}
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col items-start">
                     <span
@@ -193,7 +193,14 @@ const AISettingsPage = () => {
                     >
                       {model.name}
                     </span>
-                    <span className="text-xs text-muted-foreground truncate w-full">
+                    <span
+                      className={cn(
+                        "text-xs truncate w-full",
+                        model.isConfigured
+                          ? "text-muted-foreground"
+                          : "text-muted-foreground/90"
+                      )}
+                    >
                       {model.isConfigured
                         ? t("common.configured")
                         : t("common.notConfigured")}
@@ -202,19 +209,20 @@ const AISettingsPage = () => {
                   <button
                     type="button"
                     aria-label={`Select ${model.name}`}
-                    onClick={() => {
+                    onClick={(event) => {
+                      event.stopPropagation();
                       setSelectedModel(model.id);
                       setCurrentModel(model.id);
                     }}
                     className={cn(
-                      "h-6 w-6 rounded-md flex items-center justify-center border transition-all",
+                      "h-5 w-5 rounded-full flex items-center justify-center border transition-all",
                       "shrink-0",
                       isChecked
-                        ? "bg-q_acid border-q_acid text-q_bone"
+                        ? "bg-q_acid border-q_acid text-white"
                         : "bg-transparent border-muted-foreground/40 text-transparent hover:border-q_acid/40"
                     )}
                   >
-                    <Check className="h-4 w-4" />
+                    <Check className="h-3.5 w-3.5" />
                   </button>
                 </div>
               );
