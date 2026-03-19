@@ -11,6 +11,7 @@ const serverEntryModuleId = pathToFileURL(
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOSTNAME || "0.0.0.0";
 let serverEntryPromise;
+const runtimeImport = new Function("moduleId", "return import(moduleId)");
 
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -98,10 +99,8 @@ function appendSetCookie(res, value) {
 
 function getServerEntry() {
   if (!serverEntryPromise) {
-    // Vite/Nitro build should not try to statically resolve dist/server here.
-    serverEntryPromise = import(
-      /* @vite-ignore */ serverEntryModuleId
-    ).then(
+    // Hide runtime server import from Rollup static analysis.
+    serverEntryPromise = runtimeImport(serverEntryModuleId).then(
       (module) => module.default
     );
   }
