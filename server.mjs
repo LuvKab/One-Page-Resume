@@ -5,6 +5,9 @@ import { Readable } from "node:stream";
 import { pathToFileURL } from "node:url";
 
 const clientDir = resolve(process.cwd(), "dist/client");
+const serverEntryModuleId = pathToFileURL(
+  resolve(process.cwd(), "dist/server/server.js")
+).href;
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOSTNAME || "0.0.0.0";
 let serverEntryPromise;
@@ -95,7 +98,10 @@ function appendSetCookie(res, value) {
 
 function getServerEntry() {
   if (!serverEntryPromise) {
-    serverEntryPromise = import("./dist/server/server.js").then(
+    // Vite/Nitro build should not try to statically resolve dist/server here.
+    serverEntryPromise = import(
+      /* @vite-ignore */ serverEntryModuleId
+    ).then(
       (module) => module.default
     );
   }
